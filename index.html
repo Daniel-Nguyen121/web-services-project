@@ -26,10 +26,10 @@
       <a href="#" onclick="showContent('courseInfo')" class="w3-bar-item w3-button">
         <i class="fas fa-home"></i>
       </a>
-      <a href="javascript:void(0)" onclick="showContent('info')" class="w3-bar-item w3-button">Thông tin môn học</a>
-      <a href="javascript:void(0)" onclick="showContent('web-tech')" class="w3-bar-item w3-button">Các công nghệ web</a>
-      <a href="javascript:void(0)" onclick="showContent('student-info')" class="w3-bar-item w3-button">Thông tin sinh
-        viên</a>
+      <a href="javascript:void(0)" onclick="showContent('info')" class="w3-bar-item w3-button info">Thông tin môn học</a>
+      <a href="javascript:void(0)" onclick="showContent('web-tech')" class="w3-bar-item w3-button web-tech">Các công nghệ web</a>
+      <a href="javascript:void(0)" onclick="showContent('student-info')" class="w3-bar-item w3-button student-info">Thông tin sinh viên</a>
+      <a href="javascript:void(0)" onclick="showContent('admin')" class="w3-bar-item w3-button">Admin page</a>
     </div>
   </div>
 
@@ -660,7 +660,20 @@
       </div>
     </div>
 
-  </div>
+    <!-- Section 5: Admin page -->
+    <div id="admin" class="w3-container w3-padding-64 hidden">
+        <div class="container">
+            <div class="header">Admin menu top: Chỉnh sửa menu top</div>
+            <div id="layout">
+                <table id="layout-table">
+                    <tbody id="layout-table-body">
+                    </tbody>
+                </table>
+            </div>
+            <div id="preview-layout"></div>
+        </div>
+    </div>
+    </div>
 
   <footer id="myFooter">
     <div class="w3-theme-l1 w3-padding-32">
