@@ -137,3 +137,24 @@ body {
   color: #fff !important;
   background-color: #FFB300 !important;
 }
+
+#layout-table,
+.layout-table {
+    border-collapse: collapse;
+    display: grid;
+    justify-content: space-around;
+}
+
+.layout-item-row {
+    border-bottom: #333333 dashed 1px;
+}
+
+.layout-item {
+    padding: 5px 15px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.layout-item:not(:first-child):hover{
+    background-color: #ccc;
+}
