@@ -138,13 +138,15 @@ body {
   background-color: #FFB300 !important;
 }
 
-#layout-table {
+#layout-table,
+.layout-table {
+    border-collapse: collapse;
     display: grid;
     justify-content: space-around;
 }
 
-#layout-table-body tr{
-    border-bottom: #333333 dashed 1px !important;
+.layout-item-row {
+    border-bottom: #333333 dashed 1px;
 }
 
 .layout-item {

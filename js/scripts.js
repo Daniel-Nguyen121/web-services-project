@@ -1,4 +1,4 @@
-const menuItems = {
+let menuItems = {
     courseInfo: {
         section: "courseInfo",
         title: "Trang chủ",
@@ -50,13 +50,14 @@ const menuItems = {
         items: {}
     }
 }
-
 const ADMIN_TITLE = "Admin"
+
+let newItemCount = 0;
 
 function getSectionMenu(sectionId) {
     for (const [key, item] of Object.entries(menuItems)) {
         if (item.section === sectionId) {
-            return item;
+            return [key, item];
         }
     }
 }
@@ -97,10 +98,10 @@ function showContent(sectionId) {
 
     const sidebar = document.getElementById("mySidebar");
     sidebar.innerHTML = '';
-    let menuItem = getSectionMenu(sectionId);
+    let [key, menuItem] = getSectionMenu(sectionId);
     sidebar.innerHTML = `<h4 class=w3-bar-item"><b>${menuItem.title}</b></h4>`;
     for (const [key, item] of Object.entries(menuItem.items)) {
-        sidebar.innerHTML += `<a class="w3-bar-item w3-button w3-hover-black" href="#${key}">${item}</a>`;
+        sidebar.innerHTML += `<a class="w3-bar-item w3-button w3-hover-black" id=${key} href="#${key}">${item}</a>`;
     }
     if (sectionId === 'admin') {
         sidebar.innerHTML += '';
@@ -110,7 +111,7 @@ function showContent(sectionId) {
     // Add active class to clicked button
     event.target.classList.add('active');
 }
-window.onload = function () {
+window.onload = function (event) {
     showContent('admin');
 };
 
@@ -122,7 +123,7 @@ function addMenuTopList() {
     const layoutTable = document.getElementById('layout-table-body');
     let layoutTableItemHtml = '';
     for (const [key, item] of Object.entries(menuItems)) {
-        if (key == 'admin' || key == 'courseInfo') {
+        if (key == 'admin') {
             layoutTableItemHtml += '';
         }
         else {
@@ -136,7 +137,7 @@ function addMenuTopList() {
                             >
                                 <i class="fas fa-check"></i>
                             </td>
-                            <td class="layout-item">
+                            <td class="layout-item" onclick="showAdminContentPage('${item.section}')">
                                 <i class="fas fa-eye" aria-hidden="true"></i>
                             </td>
                             <td class="layout-item" onclick="removeDisabled('${item.section}')">
@@ -179,6 +180,9 @@ function changeTopMenuTitle(itemSection) {
     titleInput.addEventListener('change', (e) => {
         titleInput.value = e.target.value;
     })
+
+    let [key, section] = getSectionMenu(itemSection);
+    section.title = titleInput.value;
     checkedBtn.style.visibility = 'hidden';
     titleInput.setAttribute('disabled', 'disabled')
     menuItem.innerHTML = titleInput.value;
@@ -190,16 +194,73 @@ function changeTopMenuTitle(itemSection) {
  */
 
 function addNewTopMenuItem(itemSection) {
+    let newItemSectionClass = `new-top-item-${newItemCount}`;
     const sectionOrigin = document.getElementsByClassName(`w3-bar-item w3-button ${itemSection}`)[0];
-    // Menu top item
+    const currentSection = document.getElementsByClassName(`layout-item-row ${itemSection}-item`)[0];
+    const htmlOriginSection = document.getElementById(itemSection)
+    const newMenuItemTitle = 'New Item';
     const nextMenuItem = document.createElement(`a`);
-    nextMenuItem.setAttribute("href","javascript:void(0)");
-    nextMenuItem.setAttribute("onclick",`showContent(${itemSection})`);
-    nextMenuItem.setAttribute("class",`w3-bar-item w3-button ${itemSection}`);
-    nextMenuItem.innerHTML = 'hellp';
-    sectionOrigin.after(nextMenuItem);
-    // insertAfter(sectionOrigin, nextMenuItem)
+    const newMenuItemLayout = document.createElement(`tr`);
+    const newMenuSection = document.createElement(`div`);
 
+    //<tr class="layout-item-row ${newItemSectionClass}"></tr>
+    // Menu top item
+
+    nextMenuItem.setAttribute("href", "javascript:void(0)");
+    nextMenuItem.setAttribute("onclick", `showContent('${newItemSectionClass}')`);
+    nextMenuItem.setAttribute("class", `w3-bar-item w3-button ${newItemSectionClass}`);
+    nextMenuItem.innerHTML = 'New Item';
+
+    // New layout
+    newMenuItemLayout.setAttribute('class', `layout-item-row ${newItemSectionClass}-item`)
+
+    layoutTableNewItemHtml = `<td class="layout-item ${newItemSectionClass}-item">
+                                    <input class="layout-item-input ${newItemSectionClass}-item" type="text" value="${newMenuItemTitle}" disabled>
+                                </td>
+                                <td class="layout-item checked-btn ${newItemSectionClass}-item"
+                                    style="visibility: hidden;"
+                                    onclick="changeTopMenuTitle('${newItemSectionClass}')"
+                                >
+                                    <i class="fas fa-check"></i>
+                                </td>
+                                <td class="layout-item">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </td>
+                                <td class="layout-item" onclick="removeDisabled('${newItemSectionClass}')">
+                                    <i class="fas fa-pencil" aria-hidden="true"></i>
+                                </td>
+                                <td class="layout-item" onclick="removeTopMenuItem('${newItemSectionClass}')">
+                                    <i class="fas fa-times" aria-hidden="true"></i>
+                                </td>
+                                <td class="layout-item" onclick="addNewTopMenuItem('${newItemSectionClass}')">
+                                    <i class="fas fa-plus" aria-hidden="true"></i>
+                                </td>`;
+    newMenuItemLayout.innerHTML = layoutTableNewItemHtml;
+
+    // New html
+    newMenuSection.setAttribute('id', newItemSectionClass);
+    newMenuSection.setAttribute('class', "w3-container w3-padding-64 hidden");
+    // <div id="courseInfo" class="w3-container w3-padding-64 hidden">
+
+    sectionOrigin.after(nextMenuItem);
+    currentSection.after(newMenuItemLayout);
+    htmlOriginSection.after(newMenuSection);
+
+    // Add to object
+    const fieldsArray = Object.entries(menuItems);
+    const index = fieldsArray.findIndex((key) => key[1].section === itemSection);
+    const reconstructedFields = Object.fromEntries([
+        ...fieldsArray.slice(0, index), // fields prior
+        fieldsArray[index], // field you want to insert fiedls after
+        [newItemSectionClass, {
+            section: newItemSectionClass,
+            title: newMenuItemTitle,
+            items: {}
+        }],
+        ...fieldsArray.slice(index + 1)]); // fields after
+
+    menuItems = { ...reconstructedFields }
+    newItemCount++;
 }
 
 /**
@@ -210,8 +271,85 @@ function addNewTopMenuItem(itemSection) {
 function removeTopMenuItem(itemSection) {
     let sectionOrigin = document.getElementsByClassName(`w3-bar-item w3-button ${itemSection}`)[0];
     let currentSection = document.getElementsByClassName(`layout-item-row ${itemSection}-item`)[0];
-    let htmlSection = document.getElementById(`${itemSection}`)[0];
+    let htmlSection = document.getElementById(`${itemSection}`);
+    let [key, item] = getSectionMenu(itemSection);
+
+    //Remove item in object
+    delete menuItems[key]
+
+    // Remove elements
     sectionOrigin.remove();
     currentSection.remove();
     htmlSection.remove();
+}
+
+/**
+ * Admin content page
+ * @param {*} itemSection 
+ */
+
+function showAdminContentPage(itemSection) {
+    let [keyItem, currentSection] = getSectionMenu(itemSection);
+
+    // Header
+    const adminHeader = document.querySelectorAll('#admin .container')[0];
+    adminHeader.innerHTML = `<div class="header">Admin content layout: ${currentSection.title}</div>`;
+
+    // Sidebar
+    const sidebar = document.getElementById("mySidebar");
+    sidebar.innerHTML = '';
+    sidebar.innerHTML = `<h4 class=w3-bar-item"><b>${currentSection.title}</b></h4>`;
+
+    let currentSidebar = Object.entries(currentSection.items);
+    let layoutTableItemHtml = '';
+    for (const [key, item] of currentSidebar) {
+        sidebar.innerHTML += `<a class="w3-bar-item w3-button w3-hover-black" 
+                                onclick="showAdminContent('${key}')"
+                                id=${key} \
+                                href="#${key}">${item}</a>`;
+        layoutTableItemHtml += `<tr class="layout-item-row ${key}-item">
+                                    <td class="layout-item ${key}-item">
+                                        <input class="layout-item-input ${key}-item" type="text" value="${item}" disabled>
+                                    </td>
+                                    <td class="layout-item checked-btn ${key}-item"
+                                        style="visibility: hidden;"
+                                        onclick="changeLeftMenuTitle('${key}')"
+                                    >
+                                        <i class="fas fa-check"></i>
+                                    </td>
+                                    <td class="layout-item" onclick="showAdminContentPage('${key}')">
+                                        <i class="fas fa-eye" aria-hidden="true"></i>
+                                    </td>
+                                    <td class="layout-item" onclick="removeDisabled('${key}')">
+                                        <i class="fas fa-pencil" aria-hidden="true"></i>
+                                    </td>
+                                    <td class="layout-item" onclick="removeTopMenuItem('${key}')">
+                                        <i class="fas fa-times" aria-hidden="true"></i>
+                                    </td>
+                                    <td class="layout-item" onclick="addNewTopMenuItem('${key}')">
+                                        <i class="fas fa-plus" aria-hidden="true"></i>
+                                    </td>                        
+                                </tr>`;
+    }
+    // Edit side bar
+    const table = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    table.setAttribute('class', 'layout-table');
+    tbody.setAttribute('class', 'layout-table-body');
+    table.appendChild(tbody);
+    tbody.innerHTML = layoutTableItemHtml
+    adminHeader.appendChild(table)
+}
+
+/**
+ * Show admin content
+ */
+
+function showAdminContent(sectionId) {
+    const section = document.getElementById(sectionId);
+
+}
+
+function changeLeftMenuTitle() {
+    
 }
